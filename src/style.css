@@ -1,2 +1,232 @@
-*{box-sizing:border-box}html,body,#root{margin:0;width:100%;height:100%;font-family:Inter,system-ui,Arial,sans-serif;background:#071018;color:#effaff}.map{position:absolute;inset:0}.top{position:absolute;top:24px;left:28px;font-size:15px;font-weight:800;letter-spacing:.16em;text-shadow:0 2px 12px #000}.top small{display:block;margin:7px 0 0 21px;font-size:9px;letter-spacing:.23em;color:#a6bac8}.dot{display:inline-block;background:#31e5c6;width:10px;height:10px;border-radius:50%;margin-right:8px;box-shadow:0 0 14px #31e5c6}aside{position:absolute;top:100px;left:24px;width:320px;max-height:calc(100vh - 140px);overflow:auto;padding:24px;background:rgba(5,16,27,.9);border:1px solid #25445b;border-radius:18px;backdrop-filter:blur(14px);box-shadow:0 15px 60px #0008}.eyebrow{font-size:10px;letter-spacing:.2em;color:#6ee6e0}h1{font-size:30px;line-height:1.12;margin:13px 0}p{font-size:13px;color:#a4b8c8;line-height:1.55}.warning{border-left:2px solid #ffbd70;padding:12px;margin:18px 0;background:#3a2a1b66;color:#ffd9a4;font-size:11px;line-height:1.6}h3{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:#a3b6c3}button{width:100%;display:flex;justify-content:space-between;background:transparent;border:1px solid #263c4c;border-radius:9px;color:#e3eff7;padding:11px 13px;margin:7px 0;cursor:pointer;text-align:left}button.active,button:hover{border-color:#37cfe2;background:#103947}.foot{border-top:1px solid #263c4c;margin-top:20px;padding-top:16px;font-size:12px}.foot label{display:flex;gap:8px;align-items:center}.foot p{font-size:11px}.bottom{position:absolute;bottom:18px;right:22px;font-size:10px;letter-spacing:.1em;color:#afc2ce;background:#081823b8;padding:10px;border-radius:7px}@media(max-width:600px){aside{top:auto;bottom:14px;left:12px;width:calc(100% - 24px);max-height:43vh;padding:16px}.top{top:14px;left:14px}.bottom{display:none}}
-.corridor-detail{margin-top:16px;padding:15px;background:#0e2733;border:1px solid #285363;border-radius:12px}.corridor-detail strong{display:block;margin:10px 0 0;font-size:22px;color:#e9fcff}.corridor-detail small{color:#79d5e3;font-size:11px}.corridor-detail p{margin:7px 0}.map{z-index:0}aside,.top,.bottom{z-index:2}
+:root {
+  --night: #06101d;
+  --night-glow: #12304d;
+  --sign: #00663a;
+  --sign-deep: #004f2c;
+  --sign-white: #f4f6f2;
+  --paint: #f2c200;
+  --headlight: #ffe7b0;
+  --taillight: #ff3b30;
+  --ink: #141414;
+  font-family: 'Overpass', system-ui, sans-serif;
+  color: var(--sign-white);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* O espaço em volta do globo na abertura. */
+  background: radial-gradient(ellipse 80% 70% at 62% 45%, var(--night-glow) 0%, var(--night) 62%, #030810 100%);
+}
+
+.map { position: absolute; inset: 0; z-index: 0; }
+
+/* ---------- Placa ---------- */
+
+.sign {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  left: 24px;
+  width: 372px;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  padding: 7px 7px 10px;
+  background: var(--sign);
+  border-radius: 18px;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.08) inset, 0 24px 60px rgba(0, 0, 0, 0.55);
+  scrollbar-width: thin;
+}
+
+.sign-face {
+  border: 3px solid var(--sign-white);
+  border-radius: 12px;
+  padding: 22px 22px 18px;
+}
+
+.sign h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.lede {
+  margin: 10px 0 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  max-width: 30ch;
+}
+
+/* ---------- Escudos BR ---------- */
+
+.shields {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.shield {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 160ms ease;
+}
+
+.shield-art { display: block; width: 100%; height: auto; overflow: visible; }
+.shield-art path { fill: var(--sign-white); stroke: var(--ink); stroke-width: 3; transition: stroke 160ms ease; }
+.shield-art line { stroke: var(--ink); stroke-width: 2; }
+.shield-art text { fill: var(--ink); text-anchor: middle; font-family: 'Overpass', sans-serif; font-weight: 800; }
+.shield-br { font-size: 13px; }
+.shield-number { font-size: 19px; letter-spacing: -0.02em; }
+
+.shield:hover { transform: translateY(-2px); }
+.shield[aria-pressed='true'] { transform: translateY(-4px); }
+.shield[aria-pressed='true'] .shield-art path { stroke: var(--paint); stroke-width: 4.5; }
+.shield:focus-visible { outline: 3px solid var(--paint); outline-offset: 4px; }
+
+/* ---------- Detalhe do corredor ---------- */
+
+.detail {
+  margin-top: 18px;
+  padding: 16px;
+  background: var(--sign-deep);
+  border-radius: 8px;
+}
+
+.detail h2 { margin: 0; font-size: 28px; line-height: 1; font-weight: 800; }
+.detail p { margin: 8px 0 0; font-size: 14px; line-height: 1.45; }
+.detail .stretch { margin-top: 6px; font-size: 13px; opacity: 0.75; }
+.detail-empty { opacity: 0.8; }
+
+.intensity {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.intensity strong { font-size: 18px; font-weight: 800; color: var(--paint); }
+
+/* Barra pintada como a faixa tracejada da pista. */
+.paint { margin-top: 6px; height: 7px; background: rgba(244, 246, 242, 0.12); border-radius: 2px; overflow: hidden; }
+.paint-fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--paint) 0 16px, transparent 16px 24px);
+  transition: width 500ms ease;
+}
+
+/* ---------- Controles ---------- */
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch-track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 11px;
+  background: rgba(244, 246, 242, 0.25);
+  transition: background 160ms ease;
+}
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--sign-white);
+  transition: transform 160ms ease;
+}
+.switch input:checked + .switch-track { background: var(--paint); }
+.switch input:checked + .switch-track::after { transform: translateX(16px); background: var(--ink); }
+.switch input:focus-visible + .switch-track { outline: 3px solid var(--paint); outline-offset: 3px; }
+
+.overview {
+  appearance: none;
+  border: 2px solid var(--sign-white);
+  background: transparent;
+  color: var(--sign-white);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 7px 12px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.overview:hover:not(:disabled) { background: var(--sign-white); color: var(--sign); }
+.overview:disabled { opacity: 0.35; cursor: default; }
+.overview:focus-visible { outline: 3px solid var(--paint); outline-offset: 3px; }
+
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 16px 0 0;
+  font-size: 12px;
+  opacity: 0.85;
+}
+.streak { display: inline-block; width: 26px; height: 3px; border-radius: 2px; }
+.streak-white { background: linear-gradient(90deg, transparent, var(--headlight) 70%, #fff); }
+.streak-red { background: linear-gradient(90deg, transparent, var(--taillight) 70%, #ff7864); margin-left: 6px; }
+
+.disclaimer {
+  margin: 9px 6px 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* ---------- Controles do MapLibre no tom da noite ---------- */
+
+.maplibregl-ctrl-group { background: rgba(6, 16, 29, 0.85) !important; border-radius: 8px !important; }
+.maplibregl-ctrl-group button + button { border-top-color: rgba(255, 255, 255, 0.12) !important; }
+.maplibregl-ctrl-icon { filter: invert(1); }
+.maplibregl-ctrl-attrib { background: rgba(6, 16, 29, 0.7) !important; }
+.maplibregl-ctrl-attrib a { color: #b8c4cc !important; }
+
+/* ---------- Celular: a placa desce para a base da tela ---------- */
+
+@media (max-width: 640px) {
+  .sign {
+    top: auto;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    max-height: 48dvh;
+  }
+  .sign-face { padding: 14px 14px 12px; }
+  .sign h1 { font-size: 24px; }
+  /* No celular o espaço é do mapa: sai a frase de abertura e a legenda. */
+  .lede, .legend { display: none; }
+  .shields { margin-top: 12px; gap: 6px; }
+  .shield-art { max-height: 52px; }
+  .detail { margin-top: 12px; padding: 12px; }
+  .detail h2 { font-size: 22px; }
+  .detail-empty { margin: 0; font-size: 13px; }
+  .controls { margin-top: 12px; font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shield, .paint-fill, .switch-track, .switch-track::after { transition: none; }
+}
