@@ -27,6 +27,7 @@ function RadarMap({
   const mapRef = useRef<MapLibreMap | null>(null);
   const callbackRef = useRef(onSelect);
   callbackRef.current = onSelect;
+  const isFirstSelection = useRef(true);
 
   useEffect(() => {
     if (!container.current) return;
@@ -70,12 +71,19 @@ function RadarMap({
         filter: ['==', ['get', 'name'], selected],
         paint: { 'line-color': '#fff5ad', 'line-width': 7, 'line-opacity': 1 },
       });
-      map.on('click', 'corridor-lines', (event) => {
+      // Camada invisível e larga só para facilitar o clique (a linha visível tem 3px).
+      map.addLayer({
+        id: 'corridor-hit',
+        type: 'line',
+        source: 'corridors',
+        paint: { 'line-color': '#000', 'line-width': 20, 'line-opacity': 0 },
+      });
+      map.on('click', 'corridor-hit', (event) => {
         const name = event.features?.[0]?.properties?.name;
         if (typeof name === 'string') callbackRef.current(name);
       });
-      map.on('mouseenter', 'corridor-lines', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'corridor-lines', () => { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'corridor-hit', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'corridor-hit', () => { map.getCanvas().style.cursor = ''; });
     });
     return () => { mapRef.current = null; map.remove(); };
   }, []);
@@ -85,8 +93,7 @@ function RadarMap({
     if (!map) return;
     const apply = () => {
       if (!map.getLayer('corridor-glow')) return;
-      map.setPaintProperty('corridor-glow', 'line-width', heat ? 13 : 0);
-      map.setPaintProperty('corridor-glow', 'line-opacity', heat ? 0.8 : 0);
+      map.setLayoutProperty('corridor-glow', 'visibility', heat ? 'visible' : 'none');
     };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
@@ -99,11 +106,21 @@ function RadarMap({
     const apply = () => {
       if (!map.getLayer('selected-line')) return;
       map.setFilter('selected-line', ['==', ['get', 'name'], selected]);
+      // Na abertura, mantém a visão do Brasil inteiro; só aproxima após uma escolha do usuário.
+      if (isFirstSelection.current) {
+        isFirstSelection.current = false;
+        return;
+      }
       const bounds = corridor.coords.reduce(
-        (acc, point) => acc.extend(point as [number, number]),
+        (acc, point) => acc.extend(point),
         new maplibregl.LngLatBounds(corridor.coords[0], corridor.coords[0]),
       );
-      map.fitBounds(bounds, { padding: { top: 90, right: 70, bottom: 90, left: window.innerWidth < 700 ? 40 : 380 }, maxZoom: 6.5, duration: 900 });
+      // Mesmo breakpoint do CSS (600px): no celular o painel fica embaixo, ocupando até 43vh.
+      const mobile = window.innerWidth <= 600;
+      const padding = mobile
+        ? { top: 60, right: 30, bottom: Math.round(window.innerHeight * 0.45) + 20, left: 30 }
+        : { top: 90, right: 70, bottom: 90, left: 380 };
+      map.fitBounds(bounds, { padding, maxZoom: 6.5, duration: 900 });
     };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
