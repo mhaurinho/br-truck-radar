@@ -10,7 +10,7 @@ npm run dev
 ```
 
 ## Stack
-React 19, TypeScript, Vite e MapLibre GL. Three.js/WebGL avançado e deck.gl estão no roadmap, mas não são implementações completas nesta versão.
+React 19, TypeScript, Vite e MapLibre GL (projeção de globo e rastros de luz animados em camadas GeoJSON). Fonte Overpass, derivada da tipografia de placas rodoviárias.
 
 ## Transparência dos dados
 **Atenção:** os cinco corredores são traçados simplificados e a intensidade é inteiramente ilustrativa. Não há dados ao vivo, GPS de caminhões, medições de tráfego, nem heatmap estatístico neste MVP. Nunca use o protótipo como fonte de decisões operacionais.
